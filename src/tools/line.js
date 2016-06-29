@@ -2,49 +2,48 @@
 
 const canvas = require('../canvas.js');
 const imageData = require('../imageData');
+const glm = require('gl-matrix');
 
 const previewCtx = canvas.previewCtx;
 
 let firstPoint;
 let mouseDown = false;
+let mousePos = glm.vec2.create();
 
-function drawLine(ctx, x1, y1, x2, y2) {
+function drawLine(ctx, pt1, pt2) {
     ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
+    ctx.moveTo(pt1[0], pt1[1]);
+    ctx.lineTo(pt2[0], pt2[1]);
     ctx.stroke();
 }
 
 // this might need to go in a different file.
-function createLine(x1, y1, x2, y2) {
+function createLine(pt1, pt2) {
     const data = {
         type: 'line',
-        x1: x1,
-        y1: y1,
-        x2: x2,
-        y2: y2,
+        pt1: pt1,
+        pt2: pt2
         draw: function(ctx) {
-            drawLine(ctx, data.x1, data.y1, data.x2, data.y2);
+            drawLine(ctx, data.pt1, data.pt2);
         },
         toSVG: function() {
-            return `<path d="M${data.x1} ${data.y1} L${data.x2} ${data.y2}" stroke="#000000"/>`;
+            return `<path d="M${data.pt1[0]} ${data.pt1[1]} L${data.pt2[0]} ${data.pt2[1]}" stroke="#000000"/>`;
         }
     };
     return data;
 }
 
 function mousedown(e) {
-    firstPoint = {
-        x: e.pageX,
-        y: e.pageY
-    };
+    firstPoint = glm.vec2.fromValues(e.pageX, e.pageY);
     mouseDown = true;
 }
 
 function mousemove(e) {
     if (mouseDown && firstPoint) {
         canvas.previewCanvas.clear();
-        drawLine(previewCtx, firstPoint.x, firstPoint.y, e.pageX, e.pageY);
+        mousePos[0] = e.pageX;
+        mousePos[1] = e.pageY;
+        drawLine(previewCtx, firstPoint, mousePos);
     }
 }
 
@@ -52,7 +51,9 @@ function mouseup(e) {
     if (mouseDown && firstPoint) {
         if (firstPoint.x !== e.pageX || firstPoint.y !== e.pageY) {
             canvas.previewCanvas.clear();
-            const line = createLine(firstPoint.x, firstPoint.y, e.pageX, e.pageY);
+            mousePos[0] = e.pageX;
+            mousePos[1] = e.pageY;
+            const line = createLine(firstPoint, glm.vec2.clone(mousePos));
             imageData.addObject(line);
         }
         firstPoint = undefined;
