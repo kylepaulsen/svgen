@@ -3,61 +3,39 @@
 const canvas = require('../canvas.js');
 const imageData = require('../imageData');
 const glm = require('gl-matrix');
+const LineObject = require('../objects/lineObject.js');
 
 const previewCtx = canvas.previewCtx;
 
-let firstPoint;
 let mouseDown = false;
-let mousePos = glm.vec2.create();
-
-function drawLine(ctx, pt1, pt2) {
-    ctx.beginPath();
-    ctx.moveTo(pt1[0], pt1[1]);
-    ctx.lineTo(pt2[0], pt2[1]);
-    ctx.stroke();
-}
-
-// this might need to go in a different file.
-function createLine(pt1, pt2) {
-    const data = {
-        type: 'line',
-        pt1: pt1,
-        pt2: pt2
-        draw: function(ctx) {
-            drawLine(ctx, data.pt1, data.pt2);
-        },
-        toSVG: function() {
-            return `<path d="M${data.pt1[0]} ${data.pt1[1]} L${data.pt2[0]} ${data.pt2[1]}" stroke="#000000"/>`;
-        }
-    };
-    return data;
-}
+let currentLine = null;
 
 function mousedown(e) {
-    firstPoint = glm.vec2.fromValues(e.pageX, e.pageY);
-    mouseDown = true;
+    if (!mouseDown && !currentLine) {
+        let firstPoint = glm.vec2.fromValues(e.pageX, e.pageY);
+        currentLine = LineObject.create(firstPoint, glm.vec2.clone(firstPoint));
+        mouseDown = true;
+    }
 }
 
 function mousemove(e) {
-    if (mouseDown && firstPoint) {
+    if (mouseDown && currentLine) {
         canvas.previewCanvas.clear();
-        mousePos[0] = e.pageX;
-        mousePos[1] = e.pageY;
-        drawLine(previewCtx, firstPoint, mousePos);
+        currentLine.setEndPoint(e.pageX, e.pageY);
+        currentLine.drawOnCanvas(previewCtx);
     }
 }
 
 function mouseup(e) {
-    if (mouseDown && firstPoint) {
-        if (firstPoint.x !== e.pageX || firstPoint.y !== e.pageY) {
+    if (mouseDown && currentLine) {
+        let firstPoint = currentLine.getStartPoint();
+        if (firstPoint[0] !== e.pageX || firstPoint[1] !== e.pageY) {
             canvas.previewCanvas.clear();
-            mousePos[0] = e.pageX;
-            mousePos[1] = e.pageY;
-            const line = createLine(firstPoint, glm.vec2.clone(mousePos));
-            imageData.addObject(line);
+            currentLine.setEndPoint(e.pageX, e.pageY);
+            imageData.addObject(currentLine);
+            currentLine = null;
+            mouseDown = false;
         }
-        firstPoint = undefined;
-        mouseDown = false;
     }
 }
 

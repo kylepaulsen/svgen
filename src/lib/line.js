@@ -4,7 +4,7 @@ const glm = require('gl-matrix');
 /*
  *  Infinite line -- represented as point and direction
  */
-let line = {
+let lineFunctions = {
     create: function(vec2Point, vec2Dir) {
         return {
             pt: vec2Point,
@@ -28,4 +28,4 @@ let line = {
     }
 };
 
-module.exports = line;
+module.exports = lineFunctions;

@@ -11,7 +11,13 @@ for (let x = 0; x < allIdEls.length; x++) {
 }
 
 require('./canvas.js');
-require('./tools.js');
+const tools = require('./tools.js');
 const imageData = require('./imageData.js');
 
+app.ui.lineTool.addEventListener('click', function() {
+    tools.setCurrentTool('line');
+});
+app.ui.circleTool.addEventListener('click', function() {
+    tools.setCurrentTool('circle');
+});
 app.ui.export.addEventListener('click', imageData.exportSVG);

@@ -4,7 +4,7 @@ html, body {
     overflow: hidden;
 }
 
-#export {
+.toolbar {
     position: fixed;
     bottom: 10px;
     right: 10px;

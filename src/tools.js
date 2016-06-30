@@ -2,9 +2,11 @@
 
 const canvas = require('./canvas');
 const line = require('./tools/line.js');
+const circle = require('./tools/circle.js');
 
 const tools = {
-    line
+    line,
+    circle
 };
 
 let currentTool;

@@ -17,7 +17,7 @@ function addObject(obj) {
     const uuid = util.createUUID();
     obj.uuid = uuid;
     objectMap[uuid] = obj;
-    obj.draw(mainCtx);
+    obj.drawOnCanvas(mainCtx);
     return uuid;
 }
 
@@ -44,11 +44,18 @@ function exportSVG() {
 
     svg += '</svg>';
 
-    const blob = new Blob([svg], {type: 'image/svg+xml'});
+    // enabled for debugging in Chrome
     const downloadLink = document.createElement('a');
-    downloadLink.download = 'image.svg';
-    downloadLink.href = window.URL.createObjectURL(blob);
+    downloadLink.target = '_blank';
+    downloadLink.href = 'data:image/svg+xml;utf8,' + svg;
     downloadLink.click();
+
+    // uncomment for production
+//     const blob = new Blob([svg], {type: 'image/svg+xml'});
+//     const downloadLink = document.createElement('a');
+//     downloadLink.download = 'image.svg';
+//     downloadLink.href = window.URL.createObjectURL(blob);
+//     downloadLink.click();
 }
 
 module.exports = {
