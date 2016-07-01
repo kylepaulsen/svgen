@@ -1,8 +1,22 @@
 'use strict';
 
 const glm = require('gl-matrix');
+const util = require('../util.js');
+const svg = require('../svg.js');
 const PathObject = require('./pathObject.js');
 const EllipseSegment = require('./segments/ellipseSegment.js');
+
+const defaultEllipseOptions = {
+    stroke: '#000000',
+    strokeWidth: 2,
+    strokeOpacity: 1
+};
+
+function create(cenX, cenY, radX, radY, ellipseOptions) {
+    let opts = util.extend(defaultCurveOptions, curveOptions || {});
+    const controlPoints = [pt1, pt2, pt3];
+    const svgEl = svg.create('ellipse');
+}
 
 const EllipseObject = {
     create: function(cenPt, radX, radY, xAxisAngle) {

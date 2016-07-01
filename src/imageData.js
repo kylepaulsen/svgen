@@ -1,23 +1,20 @@
 const util = require('./util');
-const canvas = require('./canvas.js');
-
-const mainCtx = canvas.mainCtx;
+const svg = require('./svg.js');
 
 window.app.objects = {};
 let objectMap = window.app.objects;
 
-
 function clear() {
     window.app.objects = {};
     objectMap = window.app.objects;
-    canvas.mainCanvas.clear();
+    svg.clear();
 }
 
 function addObject(obj) {
     const uuid = util.createUUID();
     obj.uuid = uuid;
     objectMap[uuid] = obj;
-    obj.drawOnCanvas(mainCtx);
+    svg.add(obj.svgEl);
     return uuid;
 }
 
@@ -26,36 +23,27 @@ function getObjectByUUID(uuid) {
 }
 
 function removeObjectByUUID(uuid) {
-    objectMap[uuid] = undefined;
+    const obj = objectMap[uuid];
+    if (obj) {
+        objectMap[uuid] = undefined;
+        try {
+            svg.remove(obj.svgEl);
+        } catch (e) {
+            console.error(e);
+        }
+    }
 }
 
 function exportSVG() {
-    const width = canvas.mainCanvas.width;
-    const height = canvas.mainCanvas.height;
-    let svg = `<?xml version="1.0"?>
-    <svg width="${width}" height="${height}"
-    viewPort="0 0 ${width} ${height}" version="1.1"
-    xmlns="http://www.w3.org/2000/svg">`;
-
-    Object.keys(objectMap).forEach(function(key) {
-        const obj = objectMap[key];
-        svg += obj.toSVG();
-    });
-
-    svg += '</svg>';
-
-    // enabled for debugging in Chrome
+    const svgCode = '<?xml version="1.0"?>' + svg.container.innerHTML;
+    const blob = new Blob([svgCode], {type: 'image/svg+xml'});
     const downloadLink = document.createElement('a');
-    downloadLink.target = '_blank';
-    downloadLink.href = 'data:image/svg+xml;utf8,' + svg;
-    downloadLink.click();
 
-    // uncomment for production
-//     const blob = new Blob([svg], {type: 'image/svg+xml'});
-//     const downloadLink = document.createElement('a');
-//     downloadLink.download = 'image.svg';
-//     downloadLink.href = window.URL.createObjectURL(blob);
-//     downloadLink.click();
+    //downloadLink.download = 'image.svg';
+    downloadLink.target = '_blank';
+
+    downloadLink.href = window.URL.createObjectURL(blob);
+    downloadLink.click();
 }
 
 module.exports = {

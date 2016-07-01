@@ -10,7 +10,7 @@ for (let x = 0; x < allIdEls.length; x++) {
     app.ui[el.id] = el;
 }
 
-require('./canvas.js');
+require('./svg.js');
 const tools = require('./tools.js');
 const imageData = require('./imageData.js');
 
@@ -18,6 +18,6 @@ app.ui.lineTool.addEventListener('click', function() {
     tools.setCurrentTool('line');
 });
 app.ui.circleTool.addEventListener('click', function() {
-    tools.setCurrentTool('circle');
+    tools.setCurrentTool('ellipse');
 });
 app.ui.export.addEventListener('click', imageData.exportSVG);
