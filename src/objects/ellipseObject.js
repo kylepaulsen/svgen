@@ -1,25 +1,27 @@
 'use strict';
 
-const glm = require('gl-matrix');
-const PathObject = require('./pathObject.js');
-const EllipseSegment = require('./segments/ellipseSegment.js');
+const GeomObject = require('./geomObject.js');
 
 const EllipseObject = {
     create: function(cenPt, radX, radY, xAxisAngle) {
-        let ellipseObj = PathObject.create();
+        let ellipseObj = GeomObject.create('ellipse');
+
+        let resetViewObject = function() {
+            var viewObj = ellipseObj.viewObject;
+            var C = ellipseObj.data.center;
+            var Rx = ellipseObj.data.radX;
+            var Ry = ellipseObj.data.radY;
+            viewObj.setCenterPoint(C[0], C[1]);
+            viewObj.setXRadius(Rx);
+            viewObj.setYRadius(Ry);
+        };
 
         // data model for the aggregate object
         ellipseObj.data.center = cenPt;
         ellipseObj.data.radX = radX;
         ellipseObj.data.radY = radY;
         ellipseObj.data.rotation = xAxisAngle;
-
-        let startPt = glm.vec2.fromValues(cenPt[0] + radX, cenPt[1]);
-        let endPt = glm.vec2.fromValues(cenPt[0] - radX, cenPt[1]);
-        let seg1 = EllipseSegment.create(cenPt, startPt, endPt, radX, radY, xAxisAngle);
-        ellipseObj.segments.push(seg1);
-        let seg2 = EllipseSegment.create(cenPt, glm.vec2.clone(endPt), glm.vec2.clone(startPt), radX, radY, xAxisAngle);
-        ellipseObj.segments.push(seg2);
+        resetViewObject();
 
         ellipseObj.getCenter = function() {
             return ellipseObj.data.center;
@@ -35,45 +37,33 @@ const EllipseObject = {
         };
 
         ellipseObj.setCenter = function(x, y) {
-            let p = ellipseObj.data.center;
-            p[0] = x;
-            p[1] = y;
-            let seg = ellipseObj.segments[0];
-            p = seg.data.center;
-            p[0] = x;
-            p[1] = y;
-            seg = ellipseObj.segments[1];
-            p = seg.data.center;
-            p[0] = x;
-            p[1] = y;
+            let viewObj = ellipseObj.viewObject;
+            let C = ellipseObj.data.center;
+            C[0] = x;
+            C[1] = y;
+            viewObj.setCenterPoint(C[0], C[1]);
         };
         ellipseObj.setRadX = function(radX) {
-            let c = ellipseObj.data.center;
+            let viewObj = ellipseObj.viewObject;
             ellipseObj.data.radX = radX;
-            let seg = ellipseObj.segments[0];
-            seg.data.radX = radX;
-            let s = seg.data.start;
-            let e = seg.data.end;
-            s[0] = c[0] + radX;
-            e[0] = c[0] - radX;
-            seg = ellipseObj.segments[1];
-            seg.data.radX = radX;
-            s = seg.data.start;
-            s[0] = c[0] - radX;
-            e[0] = c[0] + radX;
+            viewObj.setXRadius(radX);
         };
         ellipseObj.setRadY = function(radY) {
+            let viewObj = ellipseObj.viewObject;
             ellipseObj.data.radY = radY;
-            ellipseObj.segments[0].data.radY = radY;
-            ellipseObj.segments[1].data.radY = radY;
+            viewObj.setYRadius(radY);
         };
         ellipseObj.setXRotation = function(angle) {
-            ellipseObj.data.rotation = angle;
-            let seg = ellipseObj.segments[0];
-            seg.data.rotation = angle;
-            seg = ellipseObj.segments[1];
-            seg.data.rotation = angle;
+            // function unused -- things in here total crap
+            resetViewObject();
+            return angle;
         };
+
+        let viewObject = ellipseObj.viewObject;
+        ellipseObj.show = viewObject.show;
+        ellipseObj.hide = viewObject.hide;
+        ellipseObj.attach = viewObject.attach;
+        ellipseObj.detach = viewObject.detach;
 
         return ellipseObj;
     }

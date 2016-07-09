@@ -11,9 +11,8 @@ let currentCircle = null;
 
 function mousedown(e) {
     if (!mouseDown && !currentCircle) {
-        firstPoint[0] = e.pageX;
-        firstPoint[1] = e.pageY;
-        currentCircle = EllipseObject.create(glm.vec2.clone(firstPoint), 0, 0, 0);
+        firstPoint = glm.vec2.fromValues(e.pageX, e.pageY);
+        currentCircle = EllipseObject.create(firstPoint, 0, 0, 0);
         currentCircle.attach(previewCanvas);
         mouseDown = true;
     }
@@ -24,9 +23,9 @@ function mousemove(e) {
         let firstPoint = currentCircle.data.center;
         let x = e.pageX - firstPoint[0];
         let y = e.pageY - firstPoint[1];
-        let rad = Math.sqrt(x * x + y * y);
-        currentCircle.setRadX(rad);
-        currentCircle.setRadY(rad);
+        // let rad = Math.sqrt(x * x + y * y);
+        currentCircle.setRadX(Math.abs(x));
+        currentCircle.setRadY(Math.abs(y));
     }
 }
 
@@ -36,9 +35,9 @@ function mouseup(e) {
         if (firstPoint[0] !== e.pageX || firstPoint[1] !== e.pageY) {
             let x = e.pageX - firstPoint[0];
             let y = e.pageY - firstPoint[1];
-            let rad = Math.sqrt(x * x + y * y);
-            currentCircle.setRadX(rad);
-            currentCircle.setRadY(rad);
+            // let rad = Math.sqrt(x * x + y * y);
+            currentCircle.setRadX(Math.abs(x));
+            currentCircle.setRadY(Math.abs(y));
             imageData.addObject(currentCircle);
         }
         currentCircle = null;

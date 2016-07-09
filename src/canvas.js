@@ -2,42 +2,41 @@
 
 // main canvas is where stuff gets drawn and stays there for a long time.
 // redraws dont happen very often.
-const mainCanvas = document.createElement('canvas');
-mainCanvas.width = window.innerWidth;
-mainCanvas.height = window.innerHeight;
-
-const mainCtx = mainCanvas.getContext('2d');
-
-document.body.appendChild(mainCanvas);
-
+const mainCanvas = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+mainCanvas.setAttribute('id', 'main');
+mainCanvas.setAttribute('width', window.innerWidth);
+mainCanvas.setAttribute('height', window.innerHeight);
+mainCanvas.setAttribute('fill', 'none');
 mainCanvas.clear = function() {
-    mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+    let children = mainCanvas.getElementsByTagName('*');
+    for (let i = 0; i < children.length; ++i) {
+        let child = children[i];
+        mainCanvas.removeChild(child);
+    }
 };
 
 // preview canvas is for drawing things like a 'drag' preview.
 // This is for optimization because the preview canvas will get cleared a lot for redraws.
-const previewCanvas = document.createElement('canvas');
-previewCanvas.width = window.innerWidth;
-previewCanvas.height = window.innerHeight;
-
+const previewCanvas = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+previewCanvas.setAttribute('id', 'preview');
+previewCanvas.setAttribute('width', window.innerWidth);
+previewCanvas.setAttribute('height', window.innerHeight);
+previewCanvas.setAttribute('fill', 'none');
 previewCanvas.setAttribute('style', [
     'position: absolute',
     'top: 0px',
     'left: 0px',
     'z-index: 10'
 ].join(';'));
-
-const previewCtx = previewCanvas.getContext('2d');
-
-document.body.appendChild(previewCanvas);
-
 previewCanvas.clear = function() {
-    previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+    let children = previewCanvas.getElementsByTagName('*');
+    for (let i = 0; i < children.length; ++i) {
+        let child = children[i];
+        previewCanvas.removeChild(child);
+    }
 };
 
 module.exports = {
-    mainCanvas,
-    mainCtx,
-    previewCanvas,
-    previewCtx
+    mainCanvas: mainCanvas,
+    previewCanvas: previewCanvas
 };

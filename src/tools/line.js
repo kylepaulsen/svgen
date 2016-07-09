@@ -1,39 +1,37 @@
 'use strict';
 
-const canvas = require('../canvas.js');
-const imageData = require('../imageData');
 const glm = require('gl-matrix');
+const imageData = require('../imageData.js');
 const LineObject = require('../objects/lineObject.js');
 
-const previewCtx = canvas.previewCtx;
-
+const previewCanvas = window.app.canvas.previewCanvas;
 let mouseDown = false;
-let currentLine = null;
+let firstPoint = glm.vec2.create();
+let lineViewObj = null;
 
 function mousedown(e) {
-    if (!mouseDown && !currentLine) {
-        let firstPoint = glm.vec2.fromValues(e.pageX, e.pageY);
-        currentLine = LineObject.create(firstPoint, glm.vec2.clone(firstPoint));
+    if (!mouseDown) {
+        firstPoint[0] = e.pageX;
+        firstPoint[1] = e.pageY;
+        lineViewObj = LineObject.create(firstPoint, glm.vec2.clone(firstPoint));
+        lineViewObj.attach(previewCanvas);
         mouseDown = true;
     }
 }
 
 function mousemove(e) {
-    if (mouseDown && currentLine) {
-        canvas.previewCanvas.clear();
-        currentLine.setEndPoint(e.pageX, e.pageY);
-        currentLine.drawOnCanvas(previewCtx);
+    if (mouseDown && lineViewObj) {
+        lineViewObj.setEndPoint(e.pageX, e.pageY);
     }
 }
 
 function mouseup(e) {
-    if (mouseDown && currentLine) {
-        let firstPoint = currentLine.getStartPoint();
+    if (mouseDown && lineViewObj) {
         if (firstPoint[0] !== e.pageX || firstPoint[1] !== e.pageY) {
-            canvas.previewCanvas.clear();
-            currentLine.setEndPoint(e.pageX, e.pageY);
-            imageData.addObject(currentLine);
-            currentLine = null;
+            lineViewObj.setEndPoint(e.pageX, e.pageY);
+            lineViewObj.detach(previewCanvas);
+            imageData.addObject(lineViewObj);
+            lineViewObj = null;
             mouseDown = false;
         }
     }
