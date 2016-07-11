@@ -2,7 +2,17 @@
 
 const glm = require('gl-matrix');
 const SceneObject = require('./sceneObject.js');
-const geomCreate = require('../view/viewerObjects.js');
+const createCircle = require('../view/circleViewObject.js');
+const createEllipse = require('../view/ellipseViewObject.js');
+const createLine = require('../view/lineViewObject.js');
+const createRect = require('../view/rectViewObject.js');
+
+const geomCreate = {
+    line: createLine,
+    ellipse: createEllipse,
+    circle: createCircle,
+    rect: createRect
+};
 
 const GeomObject = {
     create: function(geomType) {
@@ -21,7 +31,6 @@ const GeomObject = {
         geomObj.origin = glm.vec2.create();
         geomObj.data = {};
         geomObj.viewObject = geomCreate[geomType]();
-
         return geomObj;
     }
 };
