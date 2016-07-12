@@ -29,5 +29,6 @@ let InfiniteLine = {
 };
 
 module.exports = {
-    InfiniteLine: InfiniteLine
+    InfiniteLine: InfiniteLine,
+    root2: Math.sqrt(2)
 };

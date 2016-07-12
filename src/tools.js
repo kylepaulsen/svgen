@@ -1,13 +1,14 @@
 'use strict';
 
+const svg = require('./svg.js');
+const pointer = require('./tools/pointer.js');
 const line = require('./tools/line.js');
-const circle = require('./tools/circle.js');
 const ellipse = require('./tools/ellipse.js');
 const rectangle = require('./tools/rectangle.js');
 
 const tools = {
+    pointer,
     line,
-    circle,
     ellipse,
     rectangle
 };
@@ -28,7 +29,7 @@ function setCurrentTool(name) {
     if (tool) {
         currentTool = name;
         if (tool.cursor) {
-            window.app.canvas.previewCanvas.style.cursor = tool.cursor;
+            svg.svgEl.style.cursor = tool.cursor;
         }
     } else {
         throw new Error('No such tool: ' + name);
@@ -36,17 +37,15 @@ function setCurrentTool(name) {
 }
 
 document.addEventListener('mousedown', function(e) {
-    if (e.target.tagName === 'svg') {
+    if (e.target instanceof SVGElement) {
         const tool = getTool(currentTool);
         tool.mousedown(e);
     }
 });
 
 document.addEventListener('mousemove', function(e) {
-    if (e.target.tagName === 'svg') {
-        const tool = getTool(currentTool);
-        tool.mousemove(e);
-    }
+    const tool = getTool(currentTool);
+    tool.mousemove(e);
 });
 
 document.addEventListener('mouseup', function(e) {
@@ -54,7 +53,7 @@ document.addEventListener('mouseup', function(e) {
     tool.mouseup(e);
 });
 
-setCurrentTool('line');
+setCurrentTool('pointer');
 
 module.exports = {
     tools,
