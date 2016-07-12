@@ -25,7 +25,7 @@ const Ellipse = {
         ellipseObj.children = curves;
 
         const draw = function() {
-            const root2m1 = math.root2 - 1;
+            const root2m1 = math.Constants.root2 - 1;
             const k1 = 4 * radX * root2m1 / 3;
             const k2 = 4 * radY * root2m1 / 3;
             const eTop = center[1] - radY;

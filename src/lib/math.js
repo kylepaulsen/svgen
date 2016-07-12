@@ -11,14 +11,14 @@ let InfiniteLine = {
             dir: vec2Dir
         };
     },
-    toImplicit: function(line) {
-        const v = line.dir;
-        const p = line.pt;
+    toImplicit: function(infLine) {
+        const v = infLine.dir;
+        const p = infLine.pt;
         return glm.vec3.fromValues(v[1], -v[0], v[0] * p[1] - v[1] * p[0]);
     },
-    toOrthoImplicit: function(line) {
-        const v = line.dir;
-        const p = line.pt;
+    toOrthoImplicit: function(infLine) {
+        const v = infLine.dir;
+        const p = infLine.pt;
         return glm.vec3.fromValues(-v[0], -v[1], v[0] * p[0] + v[1] * p[1]);
     },
     intx2Implicit: function(implLine1, implLine2) {
@@ -30,5 +30,8 @@ let InfiniteLine = {
 
 module.exports = {
     InfiniteLine: InfiniteLine,
-    root2: Math.sqrt(2)
+    Constants: {
+        root2: Math.sqrt(2),
+        pi2: Math.PI * 2
+    }
 };
