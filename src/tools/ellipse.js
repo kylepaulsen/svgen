@@ -1,46 +1,43 @@
 'use strict';
 
 const glm = require('gl-matrix');
-const imageData = require('../imageData.js');
-const EllipseObject = require('../objects/ellipseObject.js');
+const svg = require('../svg.js');
+const EllipseObject = require('../objects/ellipse.js');
+const util = require('../util.js');
 
-const previewCanvas = window.app.canvas.previewCanvas;
 let mouseDown = false;
-let firstPoint = glm.vec2.create();
-let currentCircle = null;
+let firstPoint;
+let currentEllipse;
 
 function mousedown(e) {
-    if (!mouseDown && !currentCircle) {
+    if (!mouseDown && !currentEllipse) {
         firstPoint = glm.vec2.fromValues(e.pageX, e.pageY);
-        currentCircle = EllipseObject.create(firstPoint, 0, 0, 0);
-        currentCircle.attach(previewCanvas);
+        currentEllipse = EllipseObject.create(glm.vec2.clone(firstPoint), 0, 0);
+        svg.add(currentEllipse);
         mouseDown = true;
     }
 }
 
 function mousemove(e) {
-    if (mouseDown && currentCircle) {
-        let firstPoint = currentCircle.data.center;
-        let x = e.pageX - firstPoint[0];
-        let y = e.pageY - firstPoint[1];
-        // let rad = Math.sqrt(x * x + y * y);
-        currentCircle.setRadX(Math.abs(x));
-        currentCircle.setRadY(Math.abs(y));
+    if (mouseDown && currentEllipse) {
+        const secondPoint = glm.vec2.fromValues(e.pageX, e.pageY);
+        const rect = util.topLeftRectFrom2Points(firstPoint, secondPoint);
+        const radX = rect.width / 2;
+        const radY = rect.height / 2;
+        currentEllipse.setCenter(rect.topLeft[0] + radX, rect.topLeft[1] + radY);
+        currentEllipse.setRads(radX, radY);
     }
 }
 
 function mouseup(e) {
-    if (mouseDown && currentCircle) {
-        let firstPoint = currentCircle.data.center;
-        if (firstPoint[0] !== e.pageX || firstPoint[1] !== e.pageY) {
-            let x = e.pageX - firstPoint[0];
-            let y = e.pageY - firstPoint[1];
-            // let rad = Math.sqrt(x * x + y * y);
-            currentCircle.setRadX(Math.abs(x));
-            currentCircle.setRadY(Math.abs(y));
-            imageData.addObject(currentCircle);
-        }
-        currentCircle = null;
+    if (mouseDown && currentEllipse) {
+        const secondPoint = glm.vec2.fromValues(e.pageX, e.pageY);
+        const rect = util.topLeftRectFrom2Points(firstPoint, secondPoint);
+        const radX = rect.width / 2;
+        const radY = rect.height / 2;
+        currentEllipse.setCenter(rect.topLeft[0] + radX, rect.topLeft[1] + radY);
+        currentEllipse.setRads(radX, radY);
+        currentEllipse = undefined;
         mouseDown = false;
     }
 }
