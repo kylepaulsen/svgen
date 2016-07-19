@@ -1,50 +1,36 @@
 'use strict';
 
-const glm = require('gl-matrix');
-const svg = require('../svg.js');
-const EllipseObject = require('../objects/ellipse.js');
-const util = require('../util.js');
+const Paper = require('paper');
 
-let mouseDown = false;
-let firstPoint;
-let currentEllipse;
+function createEllipseTool(tools) {
+    const tool = new Paper.Tool();
+    let firstPoint;
+    let path;
 
-function mousedown(e) {
-    if (!mouseDown && !currentEllipse) {
-        firstPoint = glm.vec2.fromValues(e.pageX, e.pageY);
-        currentEllipse = EllipseObject.create(glm.vec2.clone(firstPoint), 0, 0);
-        svg.add(currentEllipse);
-        mouseDown = true;
-    }
+    tool.onMouseDown = function(e) {
+        firstPoint = e.point;
+    };
+
+    tool.onMouseDrag = function(e) {
+        // remove the old one so we can re-calc the correct ellipse.
+        if (path) {
+            path.remove();
+        }
+
+        const rect = new Paper.Rectangle(firstPoint.x, firstPoint.y,
+            e.point.x - firstPoint.x, e.point.y - firstPoint.y);
+        path = new Paper.Path.Ellipse(rect);
+        path.strokeColor = 'black';
+    };
+
+    tool.onMouseUp = function() {
+        // lose the reference so it stays.
+        path = undefined;
+    };
+
+    tool.cursor = 'crosshair';
+
+    tools.ellipse = tool;
 }
 
-function mousemove(e) {
-    if (mouseDown && currentEllipse) {
-        const secondPoint = glm.vec2.fromValues(e.pageX, e.pageY);
-        const rect = util.topLeftRectFrom2Points(firstPoint, secondPoint);
-        const radX = rect.width / 2;
-        const radY = rect.height / 2;
-        currentEllipse.setCenter(rect.topLeft[0] + radX, rect.topLeft[1] + radY);
-        currentEllipse.setRads(radX, radY);
-    }
-}
-
-function mouseup(e) {
-    if (mouseDown && currentEllipse) {
-        const secondPoint = glm.vec2.fromValues(e.pageX, e.pageY);
-        const rect = util.topLeftRectFrom2Points(firstPoint, secondPoint);
-        const radX = rect.width / 2;
-        const radY = rect.height / 2;
-        currentEllipse.setCenter(rect.topLeft[0] + radX, rect.topLeft[1] + radY);
-        currentEllipse.setRads(radX, radY);
-        currentEllipse = undefined;
-        mouseDown = false;
-    }
-}
-
-module.exports = {
-    mousedown,
-    mouseup,
-    mousemove,
-    cursor: 'crosshair'
-};
+module.exports = createEllipseTool;

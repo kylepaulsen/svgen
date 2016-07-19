@@ -18,6 +18,7 @@
     "gulp-uglify": "^1.5.4"
   },
   "dependencies": {
-    "gl-matrix": "^2.3.2"
+    "gl-matrix": "^2.3.2",
+    "paper": "^0.10.2"
   }
 }

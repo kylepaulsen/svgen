@@ -1,42 +1,51 @@
 'use strict';
 
-const glm = require('gl-matrix');
-const svg = require('../svg.js');
-const RectangleObject = require('../objects/rectangle.js');
-const util = require('../util.js');
+const Paper = require('paper');
 
-let mouseDown = false;
-let firstPoint;
-let currentRect;
+function createRectangleTool(tools) {
 
-function mousedown(e) {
-    if (!mouseDown && !currentRect) {
-        firstPoint = glm.vec2.fromValues(e.pageX, e.pageY);
-        currentRect = RectangleObject.create(glm.vec2.clone(firstPoint), 0, 0);
-        svg.add(currentRect);
-        mouseDown = true;
+    const tool = new Paper.Tool();
+    let firstPoint;
+    let path;
+
+    function midPoint(p1, p2) {
+        return new Paper.Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
     }
+
+    tool.onMouseDown = function(e) {
+        firstPoint = e.point;
+    };
+
+    tool.onMouseDrag = function(e) {
+        // remove the old one so we can re-calc the correct rect.
+        if (path) {
+            path.remove();
+        }
+        path = new Paper.Path();
+        path.strokeColor = 'black';
+
+        const nePoint = new Paper.Point(e.point.x, firstPoint.y);
+        const swPoint = new Paper.Point(firstPoint.x, e.point.y);
+
+        path.add(firstPoint);
+        path.add(midPoint(firstPoint, nePoint));
+        path.add(nePoint);
+        path.add(midPoint(nePoint, e.point));
+        path.add(e.point);
+        path.add(midPoint(e.point, swPoint));
+        path.add(swPoint);
+        path.add(midPoint(swPoint, firstPoint));
+        path.closePath();
+    };
+
+    tool.onMouseUp = function() {
+        // lose the reference so it stays.
+        path = undefined;
+    };
+
+    tool.cursor = 'crosshair';
+
+    tools.rectangle = tool;
 }
 
-function mousemove(e) {
-    if (mouseDown && currentRect) {
-        const secondPoint = glm.vec2.fromValues(e.pageX, e.pageY);
-        currentRect.setRect(util.topLeftRectFrom2Points(firstPoint, secondPoint));
-    }
-}
-
-function mouseup(e) {
-    if (mouseDown && currentRect) {
-        const secondPoint = glm.vec2.fromValues(e.pageX, e.pageY);
-        currentRect.setRect(util.topLeftRectFrom2Points(firstPoint, secondPoint));
-        currentRect = undefined;
-        mouseDown = false;
-    }
-}
-
-module.exports = {
-    mousedown,
-    mouseup,
-    mousemove,
-    cursor: 'crosshair'
-};
+module.exports = createRectangleTool;
