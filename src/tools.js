@@ -1,62 +1,26 @@
 'use strict';
 
-const svg = require('./svg.js');
-const pointer = require('./tools/pointer.js');
-const line = require('./tools/line.js');
-const ellipse = require('./tools/ellipse.js');
-const rectangle = require('./tools/rectangle.js');
+const doc = require('./document.js');
 
-const tools = {
-    pointer,
-    line,
-    ellipse,
-    rectangle
-};
+const tools = {};
 
-let currentTool;
-
-function getTool(name) {
-    const tool = tools[name];
-    if (tool) {
-        return tool;
-    } else {
-        throw new Error('No such tool: ' + name);
-    }
-}
+require('./tools/pointer.js')(tools);
+require('./tools/line.js')(tools);
+require('./tools/ellipse.js')(tools);
+require('./tools/rectangle.js')(tools);
 
 function setCurrentTool(name) {
     const tool = tools[name];
     if (tool) {
-        currentTool = name;
         if (tool.cursor) {
-            svg.svgEl.style.cursor = tool.cursor;
+            doc.canvas.style.cursor = tool.cursor;
         }
+        tool.activate();
     } else {
         throw new Error('No such tool: ' + name);
     }
 }
 
-document.addEventListener('mousedown', function(e) {
-    if (e.target instanceof SVGElement) {
-        const tool = getTool(currentTool);
-        tool.mousedown(e);
-    }
-});
-
-document.addEventListener('mousemove', function(e) {
-    const tool = getTool(currentTool);
-    tool.mousemove(e);
-});
-
-document.addEventListener('mouseup', function(e) {
-    const tool = getTool(currentTool);
-    tool.mouseup(e);
-});
-
-setCurrentTool('pointer');
-
 module.exports = {
-    tools,
-    getTool,
     setCurrentTool
 };

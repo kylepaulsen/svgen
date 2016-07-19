@@ -1,39 +1,31 @@
 'use strict';
 
-const glm = require('gl-matrix');
-const svg = require('../svg.js');
-const LineObject = require('../objects/line.js');
+const Paper = require('paper');
 
-let mouseDown = false;
-let firstPoint;
-let currentLine;
+function createLineTool(tools) {
 
-function mousedown(e) {
-    if (!mouseDown) {
-        firstPoint = glm.vec2.fromValues(e.pageX, e.pageY);
-        currentLine = LineObject.create(firstPoint, glm.vec2.clone(firstPoint));
-        svg.add(currentLine);
-        mouseDown = true;
-    }
+    const tool = new Paper.Tool();
+    let firstPoint;
+    let path;
+
+    tool.onMouseDown = function(e) {
+        path = new Paper.Path();
+        path.strokeColor = 'black';
+        firstPoint = e.point;
+        path.add(e.point);
+        path.add(e.point);
+        path.add(e.point);
+    };
+
+    tool.onMouseDrag = function(e) {
+        path.segments[1].point.x = (e.point.x + firstPoint.x) / 2;
+        path.segments[1].point.y = (e.point.y + firstPoint.y) / 2;
+        path.segments[2].point = e.point;
+    };
+
+    tool.cursor = 'crosshair';
+
+    tools.line = tool;
 }
 
-function mousemove(e) {
-    if (mouseDown && currentLine) {
-        currentLine.setEndPoint(e.pageX, e.pageY);
-    }
-}
-
-function mouseup(e) {
-    if (mouseDown && currentLine) {
-        currentLine.setEndPoint(e.pageX, e.pageY);
-        currentLine = undefined;
-        mouseDown = false;
-    }
-}
-
-module.exports = {
-    mousedown,
-    mouseup,
-    mousemove,
-    cursor: 'crosshair'
-};
+module.exports = createLineTool;
