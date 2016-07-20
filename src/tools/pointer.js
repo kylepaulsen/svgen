@@ -42,7 +42,7 @@ function createPointerTool(tools) {
         if (segment) {
             segment.point.x += e.delta.x;
             segment.point.y += e.delta.y;
-            path.smooth();
+            // path.smooth();
         } else if (path) {
             path.position.x += e.delta.x;
             path.position.y += e.delta.y;
