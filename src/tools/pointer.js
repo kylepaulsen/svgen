@@ -14,9 +14,11 @@ function createPointerTool(tools) {
 
     let segment;
     let path;
+    let curve;
 
     tool.onMouseDown = function(e) {
         segment = undefined;
+        curve = undefined;
         path = undefined;
 
         var hitResult = Paper.project.hitTest(e.point, hitOptions);
@@ -29,10 +31,9 @@ function createPointerTool(tools) {
             if (hitResult.type === 'segment') {
                 segment = hitResult.segment;
             } else if (hitResult.type === 'stroke') {
-                segment = hitResult.location.segment;
+                curve = hitResult.location.curve;
             }
         }
-        window.s = segment;
         if (hitResult.type === 'fill') {
             Paper.project.activeLayer.addChild(hitResult.item);
         }
@@ -42,7 +43,17 @@ function createPointerTool(tools) {
         if (segment) {
             segment.point.x += e.delta.x;
             segment.point.y += e.delta.y;
-            // path.smooth();
+
+            //path.smooth();
+        } else if (curve) {
+            // allow mouse to "sculpt" the curve by pointing the handles towards the mouse position.
+            // power needs to be negative because of canvas origin.
+            const DRAG_POWER = -1.5;
+            const dist1 = curve.point1.getDistance(e.point);
+            const dist2 = curve.point2.getDistance(e.point);
+            const totalDist = dist1 + dist2;
+            curve.handle1 = curve.point1.subtract(e.point).multiply(DRAG_POWER * dist1 / totalDist);
+            curve.handle2 = curve.point2.subtract(e.point).multiply(DRAG_POWER * dist2 / totalDist);
         } else if (path) {
             path.position.x += e.delta.x;
             path.position.y += e.delta.y;
